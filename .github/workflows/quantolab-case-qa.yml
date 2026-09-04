@@ -57,3 +57,5 @@ jobs:
           path: qa-output/
           if-no-files-found: error
           retention-days: 7
+
+# Product screenshot refreshes are part of the case QA surface.
