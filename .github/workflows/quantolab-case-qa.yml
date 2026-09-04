@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'assets/project-media.css'
       - 'assets/quantolab-case.css'
+      - 'assets/quantolab-showcase.css'
       - 'assets/main.js'
       - 'qa/quantolab-case-qa.mjs'
       - '.github/workflows/quantolab-case-qa.yml'
