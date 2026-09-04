@@ -31,18 +31,14 @@ jobs:
           import base64
           import subprocess
           from pathlib import Path
-
           src_path = Path('/tmp/portrait-source')
           src = src_path.read_bytes()
           mime = subprocess.check_output(['file', '--brief', '--mime-type', str(src_path)], text=True).strip()
           if not mime.startswith('image/'):
               raise SystemExit(f'Downloaded Figma asset is not an image: {mime}')
-
           encoded = base64.b64encode(src).decode('ascii')
           width = height = 1167
-          svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <image x="0" y="0" width="{width}" height="{height}" preserveAspectRatio="xMidYMid slice" href="data:{mime};base64,{encoded}" />
-</svg>\n'''
+          svg = '<svg width="1167" height="1167" viewBox="0 0 1167 1167" fill="none" xmlns="http://www.w3.org/2000/svg">\n' + '<image x="0" y="0" width="1167" height="1167" preserveAspectRatio="xMidYMid slice" href="data:' + mime + ';base64,' + encoded + '" />\n</svg>\n'
           Path('assets/portrait-final.svg').write_text(svg, encoding='utf-8')
           print(f'portrait-final.svg built from {mime}; source={len(src)} bytes; svg={len(svg)} bytes')
           PY
