@@ -54,7 +54,7 @@ for (const viewport of viewports) {
   if (!result.liveHref.startsWith('https://quantolab.com.br')) failures.push(`${prefix}: live product link is incorrect`);
   if (result.liveTarget !== '_blank') failures.push(`${prefix}: live product should open safely in a new tab`);
   if (result.workLabel !== 'Work') failures.push(`${prefix}: Work navigation is not active`);
-  for (const proof of ['28', '0', '2026', 'preencher', 'Calculate']) {
+  for (const proof of ['28', '0', '2026', 'Fill', 'Calculate', 'Explain', 'Compare']) {
     if (!result.bodyText.toLowerCase().includes(proof.toLowerCase())) failures.push(`${prefix}: evidence text missing: ${proof}`);
   }
   if (viewport.mode === 'mobile') {
