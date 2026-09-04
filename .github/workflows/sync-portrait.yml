@@ -1,0 +1,55 @@
+name: Sync Approved Portrait
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-portrait.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-portrait:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download portrait approved in Figma
+        run: |
+          curl --fail --location --retry 3 \
+            'https://www.figma.com/api/mcp/asset/fa123574-14d2-44f9-894b-d87370c5c51b.png' \
+            --output /tmp/portrait-source.png
+          test -s /tmp/portrait-source.png
+
+      - name: Build self-contained SVG
+        run: |
+          python3 - <<'PY'
+          import base64, struct
+          from pathlib import Path
+
+          src = Path('/tmp/portrait-source.png').read_bytes()
+          if src[:8] != b'\x89PNG\r\n\x1a\n':
+              raise SystemExit('Downloaded portrait is not a PNG')
+          width, height = struct.unpack('>II', src[16:24])
+          encoded = base64.b64encode(src).decode('ascii')
+          svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <image width="{width}" height="{height}" preserveAspectRatio="xMidYMid slice" href="data:image/png;base64,{encoded}" />
+          </svg>\n'''
+          Path('assets/portrait-final.svg').write_text(svg, encoding='utf-8')
+          print(f'portrait-final.svg built from {width}x{height} PNG; {len(svg)} bytes')
+          PY
+
+      - name: Commit portrait asset
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/portrait-final.svg
+          if git diff --cached --quiet; then
+            echo 'Portrait already synchronized.'
+            exit 0
+          fi
+          git commit -m 'Use self-contained approved portrait SVG'
+          git push origin main
