@@ -24,6 +24,11 @@ for (const capture of captures) {
     reducedMotion: 'reduce',
   });
 
+  await page.addInitScript(() => {
+    localStorage.setItem('quantolab-terms-v2026-08-16', 'accepted');
+    localStorage.setItem('quantolab-theme', 'light');
+  });
+
   await page.route('**/*', route => {
     const requestUrl = route.request().url();
     if (blockedHosts.some(host => requestUrl.includes(host))) return route.abort();
@@ -40,6 +45,8 @@ for (const capture of captures) {
 
     const title = await page.title();
     if (!title) throw new Error('missing document title');
+    const consentVisible = await page.locator('.terms-consent').count();
+    if (consentVisible) throw new Error('terms consent overlay is still visible');
 
     await page.screenshot({
       path: path.join(outDir, `${capture.name}.png`),
@@ -59,5 +66,5 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Captured ${captures.length} QuantoLab product views.`);
+  console.log(`Captured ${captures.length} QuantoLab product views without consent overlays.`);
 }
