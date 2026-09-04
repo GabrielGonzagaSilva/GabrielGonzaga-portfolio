@@ -13,7 +13,7 @@ const pages = [
   { name: 'aureum-hub', path: '/work/aureum-hub/', h1: '.case-title' },
 ];
 
-/* Covers the supported 320–2560px range, plus the canonical Figma widths. */
+/* Canonical breakpoints plus range edges: the website supports 320–2560px. */
 const viewports = [
   { name: 'wide', width: 2560, height: 1440, mode: 'desktop' },
   { name: 'desktop', width: 1440, height: 1100, mode: 'desktop' },
@@ -22,10 +22,11 @@ const viewports = [
   { name: 'narrow', width: 320, height: 720, mode: 'mobile' },
 ];
 
+/* Includes the approved web refinements documented in DESIGN.md. */
 const expectedByMode = {
-  desktop: { header: 76, footer: 88, baseGutter: 72, pageH1: 80, caseH1: 64 },
-  tablet: { header: 76, footer: 80, baseGutter: 48, pageH1: 56, caseH1: 50 },
-  mobile: { header: 68, footer: 72, baseGutter: 20, pageH1: 40, caseH1: 40 },
+  desktop: { header: 76, footer: 88, baseGutter: 72, pageH1: 66, caseH1: 56 },
+  tablet: { header: 76, footer: 80, baseGutter: 48, pageH1: 50, caseH1: 46 },
+  mobile: { header: 68, footer: 72, baseGutter: 20, pageH1: 36, caseH1: 34 },
 };
 
 await fs.mkdir(outDir, { recursive: true });
@@ -63,7 +64,6 @@ for (const viewport of viewports) {
       const header = rect('.site-header');
       const footer = rect('.site-footer');
       const headerInner = rect('.header-inner');
-      const footerInner = rect('.footer-inner');
       const nav = rect('.desktop-nav');
       const menu = rect('.mobile-menu-button');
       const h1 = rect(h1Selector);
@@ -90,7 +90,10 @@ for (const viewport of viewports) {
       })() : null;
 
       const sections = [...document.querySelectorAll('main > .section, main > .home-section')];
-      const dividerCount = sections.slice(1).filter(section => parseFloat(getComputedStyle(section).borderTopWidth) >= .5).length;
+      const prominentSectionDividers = sections.filter(section => {
+        const cs = getComputedStyle(section);
+        return parseFloat(cs.borderTopWidth) >= .5 || parseFloat(cs.borderBottomWidth) >= .5;
+      }).length;
       const brand = document.querySelector('.brand');
       const brandStyle = brand ? getComputedStyle(brand) : null;
       const brokenImages = [...document.images].filter(img => !img.complete || img.naturalWidth === 0).map(img => img.getAttribute('src'));
@@ -98,23 +101,16 @@ for (const viewport of viewports) {
         const r = el.getBoundingClientRect();
         return { left: r.left, right: r.right, width: r.width };
       });
-      const visibleInteractive = [...document.querySelectorAll('a,button')].filter(el => {
-        const r = el.getBoundingClientRect();
-        const cs = getComputedStyle(el);
-        return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none';
-      }).map(el => ({ tag: el.tagName, text: (el.textContent || '').trim().slice(0,40), width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height }));
 
       return {
-        header, footer, headerInner, footerInner, nav, menu, h1, portrait, portraitVariance,
+        header, footer, headerInner, nav, menu, h1, portrait, portraitVariance,
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
         bodyScrollWidth: document.body.scrollWidth,
-        sectionCount: sections.length,
-        dividerCount,
+        prominentSectionDividers,
         brand: brandStyle ? { fontSize: parseFloat(brandStyle.fontSize), lineHeight: brandStyle.lineHeight } : null,
         brokenImages,
         footerLabels,
-        visibleInteractive,
       };
     }, { h1Selector: pageSpec.h1, portraitSelector: pageSpec.portrait || null });
 
@@ -126,7 +122,8 @@ for (const viewport of viewports) {
 
     if (!metrics.headerInner) fail(entry, 'header inner missing');
     else {
-      const contentWidth = Math.min(viewport.width - (2 * (viewport.width >= 1600 ? 96 : exp.baseGutter)), 1296);
+      const effectiveGutter = viewport.width >= 1600 ? 96 : exp.baseGutter;
+      const contentWidth = Math.min(viewport.width - (2 * effectiveGutter), 1296);
       const expectedLeft = (viewport.width - contentWidth) / 2;
       const left = metrics.headerInner.x;
       const right = viewport.width - (metrics.headerInner.x + metrics.headerInner.width);
@@ -139,7 +136,7 @@ for (const viewport of viewports) {
       if (!near(metrics.h1.fontSize, target, 1)) fail(entry, `H1 ${metrics.h1.fontSize}px expected ~${target}px`);
     }
 
-    if (metrics.sectionCount > 1 && metrics.dividerCount !== metrics.sectionCount - 1) fail(entry, `section dividers ${metrics.dividerCount}/${metrics.sectionCount - 1} expected`);
+    if (metrics.prominentSectionDividers > 0) fail(entry, `${metrics.prominentSectionDividers} prominent full-width section divider(s) remain`);
     if (metrics.scrollWidth > metrics.clientWidth + 1 || metrics.bodyScrollWidth > metrics.clientWidth + 1) fail(entry, `horizontal overflow ${metrics.scrollWidth}/${metrics.bodyScrollWidth} > ${metrics.clientWidth}`);
     if (metrics.brokenImages.length) fail(entry, `broken images: ${metrics.brokenImages.join(', ')}`);
     if (consoleErrors.length) fail(entry, `console errors: ${consoleErrors.join(' | ')}`);
