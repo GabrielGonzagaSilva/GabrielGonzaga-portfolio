@@ -64,6 +64,26 @@ for (const viewport of viewports) {
       const menu = rect('.mobile-menu-button');
       const h1 = rect(h1Selector);
       const portrait = portraitSelector ? rect(portraitSelector) : null;
+      const portraitVariance = portraitSelector ? (() => {
+        const img = document.querySelector(portraitSelector);
+        if (!(img instanceof HTMLImageElement) || !img.complete || img.naturalWidth === 0) return null;
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return null;
+        try {
+          ctx.drawImage(img, 0, 0, 32, 32);
+          const data = ctx.getImageData(0, 0, 32, 32).data;
+          const luma = [];
+          for (let i = 0; i < data.length; i += 4) luma.push(.2126 * data[i] + .7152 * data[i + 1] + .0722 * data[i + 2]);
+          const mean = luma.reduce((sum, value) => sum + value, 0) / luma.length;
+          const variance = luma.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / luma.length;
+          return Math.sqrt(variance);
+        } catch {
+          return null;
+        }
+      })() : null;
       const section = document.querySelector('.section, .home-section');
       const sectionStyle = section ? getComputedStyle(section) : null;
       const brand = document.querySelector('.brand');
@@ -75,7 +95,7 @@ for (const viewport of viewports) {
         return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none';
       }).map(el => ({ tag: el.tagName, text: (el.textContent || '').trim().slice(0,40), width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height }));
       return {
-        header, footer, headerInner, nav, menu, h1, portrait,
+        header, footer, headerInner, nav, menu, h1, portrait, portraitVariance,
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
         bodyScrollWidth: document.body.scrollWidth,
@@ -118,6 +138,7 @@ for (const viewport of viewports) {
 
     if (pageSpec.portrait && metrics.portrait) {
       const p = metrics.portrait;
+      if (metrics.portraitVariance === null || metrics.portraitVariance < 8) fail(entry, `portrait does not contain enough rendered image detail (variance ${metrics.portraitVariance ?? 'null'})`);
       if (pageSpec.name === 'home') {
         if (viewport.name === 'desktop' && (!near(p.width,320,2) || !near(p.height,382,2))) fail(entry, `Home portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 320×382`);
         if (viewport.name === 'tablet' && (!near(p.width,300,2) || !near(p.height,382,2))) fail(entry, `Home tablet portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 300×382`);
