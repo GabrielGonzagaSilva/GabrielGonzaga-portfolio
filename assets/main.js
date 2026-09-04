@@ -3,6 +3,7 @@
   const page = document.body.dataset.page || 'Page';
   const headerMount = document.querySelector('[data-site-header]');
   const footerMount = document.querySelector('[data-site-footer]');
+  const workCasePages = new Set(['QuantoLab', 'Aureum Hub']);
   const routes = [
     ['Work', `${root}work/`],
     ['About', `${root}about/`],
@@ -19,7 +20,7 @@
   const createRouteLink = (label, href) => {
     const link = createText('a', '', label);
     link.href = href;
-    if (page === label || (page === 'Aureum Hub' && label === 'Work')) {
+    if (page === label || (workCasePages.has(page) && label === 'Work')) {
       link.setAttribute('aria-current', 'page');
     }
     return link;
@@ -78,7 +79,7 @@
     footer.className = 'site-footer';
     const inner = document.createElement('div');
     inner.className = 'footer-inner';
-    const context = page === 'Home' ? 'Portfolio V2 / Home' : page === 'Aureum Hub' ? 'Portfolio / Aureum Hub' : `Portfolio V2 / ${page}`;
+    const context = page === 'Home' ? 'Portfolio V2 / Home' : workCasePages.has(page) ? `Portfolio / ${page}` : `Portfolio V2 / ${page}`;
     inner.append(
       createText('span', 'footer-label', 'Gabriel Gonzaga'),
       createText('span', 'footer-label', context),
