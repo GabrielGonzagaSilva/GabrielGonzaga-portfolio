@@ -19,6 +19,9 @@
   const createRouteLink = (label, href) => {
     const link = createText('a', '', label);
     link.href = href;
+    if (page === label || (page === 'Aureum Hub' && label === 'Work')) {
+      link.setAttribute('aria-current', 'page');
+    }
     return link;
   };
 
@@ -38,6 +41,7 @@
     const brand = createRouteLink('Gabriel Gonzaga', root);
     brand.className = 'brand';
     brand.setAttribute('aria-label', 'Gabriel Gonzaga — Home');
+    if (page === 'Home') brand.setAttribute('aria-current', 'page');
     inner.append(brand);
 
     const desktopNav = document.createElement('nav');
@@ -51,6 +55,7 @@
     menuButton.type = 'button';
     menuButton.setAttribute('aria-expanded', 'false');
     menuButton.setAttribute('aria-controls', 'mobile-menu');
+    menuButton.setAttribute('aria-label', 'Open navigation menu');
     inner.append(menuButton);
 
     const panel = document.createElement('div');
@@ -73,9 +78,10 @@
     footer.className = 'site-footer';
     const inner = document.createElement('div');
     inner.className = 'footer-inner';
+    const context = page === 'Home' ? 'Portfolio V2 / Home' : page === 'Aureum Hub' ? 'Portfolio / Aureum Hub' : `Portfolio V2 / ${page}`;
     inner.append(
       createText('span', 'footer-label', 'Gabriel Gonzaga'),
-      createText('span', 'footer-label', `Portfolio / ${page}`),
+      createText('span', 'footer-label', context),
     );
     footer.append(inner);
     footerMount.append(footer);
@@ -87,11 +93,13 @@
     const close = () => {
       menu.hidden = true;
       menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.setAttribute('aria-label', 'Open navigation menu');
       document.body.classList.remove('menu-open');
     };
     const open = () => {
       menu.hidden = false;
       menuButton.setAttribute('aria-expanded', 'true');
+      menuButton.setAttribute('aria-label', 'Close navigation menu');
       document.body.classList.add('menu-open');
       menu.querySelector('a')?.focus();
     };
