@@ -149,6 +149,10 @@
 
 @media (max-width: 1199px) {
   .site-footer { min-height: 80px !important; }
+  .page-title,
+  .display,
+  .home-identity h1 { font-size: 50px !important; line-height: 56px !important; }
+  .case-title { font-size: 46px !important; line-height: 52px !important; }
   .profile-photo { width: 360px !important; height: 430px !important; }
   .home-about__inner { grid-template-columns: 300px minmax(0,560px) !important; gap: 48px !important; }
   .home-about__media { width: 300px !important; }
