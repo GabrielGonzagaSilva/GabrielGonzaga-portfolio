@@ -30,14 +30,11 @@ for (const viewport of viewports) {
     const work = document.querySelector('.desktop-nav a[aria-current="page"], .mobile-panel a[aria-current="page"]');
     const live = document.querySelector('.ql-live-link');
     const canvas = document.querySelector('.ql-product-canvas');
-    const phone = document.querySelector('.ql-phone-frame');
-    const productScene = document.querySelector('.ql-product-scene');
-    const interfaceGallery = document.querySelector('.ql-interface-gallery');
-    const heroBrowser = document.querySelector('.ql-browser-frame--hero');
     const menu = document.querySelector('.mobile-menu-button');
     const desktopNav = document.querySelector('.desktop-nav');
+    const realShots = [...document.querySelectorAll('.ql-real-shot')];
+    const fakeMockups = document.querySelectorAll('.ql-browser-frame, .ql-calculator, .ql-interface-window, .ql-mini-phone, .ql-product-scene').length;
     const visible = el => el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
-    const rect = el => el ? el.getBoundingClientRect() : null;
     return {
       h1Size: h1Style ? parseFloat(h1Style.fontSize) : null,
       scrollWidth: document.documentElement.scrollWidth,
@@ -47,11 +44,9 @@ for (const viewport of viewports) {
       liveHref: live?.href || '',
       liveTarget: live?.target || '',
       hasCanvas: Boolean(canvas),
-      hasPhone: Boolean(phone),
-      hasProductScene: Boolean(productScene),
-      hasInterfaceGallery: Boolean(interfaceGallery),
-      heroBrowserRect: rect(heroBrowser),
-      canvasRect: rect(canvas),
+      realShotCount: realShots.length,
+      realShotSources: realShots.map(img => img.getAttribute('src') || ''),
+      fakeMockups,
       workLabel: work?.textContent?.trim() || '',
       bodyText: document.body.innerText,
       menuVisible: visible(menu),
@@ -65,15 +60,15 @@ for (const viewport of viewports) {
   if (result.scrollWidth > result.clientWidth + 1 || result.bodyWidth > result.clientWidth + 1) failures.push(`${prefix}: horizontal overflow`);
   if (result.brokenImages.length) failures.push(`${prefix}: broken images ${result.brokenImages.join(', ')}`);
   if (!result.hasCanvas) failures.push(`${prefix}: product preview missing`);
-  if (!result.hasPhone) failures.push(`${prefix}: responsive phone mockup missing`);
-  if (!result.hasProductScene) failures.push(`${prefix}: flagship product scene missing`);
-  if (!result.hasInterfaceGallery) failures.push(`${prefix}: interface gallery missing`);
-  if (!result.heroBrowserRect || result.heroBrowserRect.width < 200 || result.heroBrowserRect.height < 200) failures.push(`${prefix}: hero browser mockup collapsed`);
-  if (!result.canvasRect || result.canvasRect.height < 450) failures.push(`${prefix}: hero showcase collapsed`);
+  if (result.realShotCount < 5) failures.push(`${prefix}: expected at least 5 real product captures, found ${result.realShotCount}`);
+  if (result.fakeMockups !== 0) failures.push(`${prefix}: legacy fake mockup elements remain (${result.fakeMockups})`);
+  for (const asset of ['home-desktop.png', 'clt-pj-desktop.png', 'clt-pj-mobile.png', 'valor-hora-desktop.png', 'metodologia-desktop.png']) {
+    if (!result.realShotSources.some(src => src.endsWith(asset))) failures.push(`${prefix}: real product asset missing: ${asset}`);
+  }
   if (!result.liveHref.startsWith('https://quantolab.com.br')) failures.push(`${prefix}: live product link is incorrect`);
   if (result.liveTarget !== '_blank') failures.push(`${prefix}: live product should open safely in a new tab`);
   if (result.workLabel !== 'Work') failures.push(`${prefix}: Work navigation is not active`);
-  for (const proof of ['28', '0', '2026', 'Fill', 'Calculate', 'Explain', 'Compare', 'INTERFACE SYSTEM']) {
+  for (const proof of ['28', '0', '2026', 'Fill', 'Calculate', 'Explain', 'Compare', 'A calculator can be mathematically correct']) {
     if (!result.bodyText.toLowerCase().includes(proof.toLowerCase())) failures.push(`${prefix}: evidence text missing: ${proof}`);
   }
   if (viewport.mode === 'mobile') {
