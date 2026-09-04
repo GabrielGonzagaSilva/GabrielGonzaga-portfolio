@@ -16,10 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout portfolio
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Checkout QuantoLab source
+        uses: actions/checkout@v4
+        with:
+          repository: GabrielGonzagaSilva/QuantoLab
+          path: .quantolab-source
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,8 +38,23 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
+      - name: Start deterministic QuantoLab source server
+        run: |
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory .quantolab-source > /tmp/quantolab-source.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4174/ >/dev/null; then exit 0; fi
+            sleep 0.5
+          done
+          cat /tmp/quantolab-source.log
+          exit 1
+
       - name: Capture real QuantoLab screens
+        env:
+          QUANTOLAB_CAPTURE_BASE: http://127.0.0.1:4174
         run: node qa/capture-quantolab-media.mjs
+
+      - name: Remove temporary source checkout
+        run: rm -rf .quantolab-source
 
       - name: Commit refreshed product media
         run: |
