@@ -1,6 +1,9 @@
 import { chromium } from 'playwright';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 const baseURL = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
+const outDir = process.env.QA_OUT_DIR || 'qa-output';
 const viewports = [
   { name: 'wide', width: 2560, height: 1440, h1: 56, mode: 'desktop' },
   { name: 'desktop', width: 1440, height: 1100, h1: 56, mode: 'desktop' },
@@ -9,6 +12,7 @@ const viewports = [
   { name: 'narrow', width: 320, height: 720, h1: 34, mode: 'mobile' },
 ];
 
+await fs.mkdir(outDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const failures = [];
 const near = (actual, expected, tolerance = 1.5) => Math.abs(actual - expected) <= tolerance;
@@ -63,9 +67,12 @@ for (const viewport of viewports) {
     failures.push(`${prefix}: desktop navigation missing`);
   }
   if (consoleErrors.length) failures.push(`${prefix}: console errors ${consoleErrors.join(' | ')}`);
+
+  await page.screenshot({ path: path.join(outDir, `quantolab-case-${viewport.name}.png`), fullPage: true });
   await page.close();
 }
 
 await browser.close();
+await fs.writeFile(path.join(outDir, 'quantolab-case-report.json'), JSON.stringify({ failures, scenarios: viewports.length }, null, 2));
 console.log(JSON.stringify({ failures, scenarios: viewports.length }, null, 2));
 if (failures.length) process.exitCode = 1;
