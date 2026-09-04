@@ -47,3 +47,12 @@ jobs:
 
       - name: Validate QuantoLab case
         run: node qa/quantolab-case-qa.mjs
+
+      - name: Upload visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantolab-case-visual-qa
+          path: qa-output/
+          if-no-files-found: error
+          retention-days: 7
