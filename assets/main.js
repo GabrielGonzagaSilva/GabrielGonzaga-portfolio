@@ -9,34 +9,76 @@
     ['Experience', `${root}experience/`],
   ];
 
+  const createText = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    node.textContent = text;
+    return node;
+  };
+
+  const createRouteLink = (label, href) => {
+    const link = createText('a', '', label);
+    link.href = href;
+    return link;
+  };
+
+  const createLocale = () => {
+    const locale = createText('span', 'locale', 'EN / PT');
+    locale.setAttribute('aria-label', 'Language selector coming later');
+    return locale;
+  };
+
   if (headerMount) {
-    headerMount.innerHTML = `
-      <header class="site-header">
-        <div class="header-inner">
-          <a class="brand" href="${root}" aria-label="Gabriel Gonzaga — Home">Gabriel Gonzaga</a>
-          <nav class="desktop-nav" aria-label="Primary navigation">
-            ${routes.map(([label, href]) => `<a href="${href}">${label}</a>`).join('')}
-            <span class="locale" aria-label="Language selector coming later">EN / PT</span>
-          </nav>
-          <button class="mobile-menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu">MENU</button>
-        </div>
-        <div id="mobile-menu" class="mobile-panel" hidden>
-          <nav aria-label="Mobile navigation">
-            ${routes.map(([label, href]) => `<a href="${href}">${label}</a>`).join('')}
-            <span class="locale">EN / PT</span>
-          </nav>
-        </div>
-      </header>`;
+    const header = document.createElement('header');
+    header.className = 'site-header';
+
+    const inner = document.createElement('div');
+    inner.className = 'header-inner';
+
+    const brand = createRouteLink('Gabriel Gonzaga', root);
+    brand.className = 'brand';
+    brand.setAttribute('aria-label', 'Gabriel Gonzaga — Home');
+    inner.append(brand);
+
+    const desktopNav = document.createElement('nav');
+    desktopNav.className = 'desktop-nav';
+    desktopNav.setAttribute('aria-label', 'Primary navigation');
+    routes.forEach(([label, href]) => desktopNav.append(createRouteLink(label, href)));
+    desktopNav.append(createLocale());
+    inner.append(desktopNav);
+
+    const menuButton = createText('button', 'mobile-menu-button', 'MENU');
+    menuButton.type = 'button';
+    menuButton.setAttribute('aria-expanded', 'false');
+    menuButton.setAttribute('aria-controls', 'mobile-menu');
+    inner.append(menuButton);
+
+    const panel = document.createElement('div');
+    panel.id = 'mobile-menu';
+    panel.className = 'mobile-panel';
+    panel.hidden = true;
+
+    const mobileNav = document.createElement('nav');
+    mobileNav.setAttribute('aria-label', 'Mobile navigation');
+    routes.forEach(([label, href]) => mobileNav.append(createRouteLink(label, href)));
+    mobileNav.append(createLocale());
+    panel.append(mobileNav);
+
+    header.append(inner, panel);
+    headerMount.append(header);
   }
 
   if (footerMount) {
-    footerMount.innerHTML = `
-      <footer class="site-footer">
-        <div class="footer-inner">
-          <span class="footer-label">Gabriel Gonzaga</span>
-          <span class="footer-label">Portfolio / ${page}</span>
-        </div>
-      </footer>`;
+    const footer = document.createElement('footer');
+    footer.className = 'site-footer';
+    const inner = document.createElement('div');
+    inner.className = 'footer-inner';
+    inner.append(
+      createText('span', 'footer-label', 'Gabriel Gonzaga'),
+      createText('span', 'footer-label', `Portfolio / ${page}`),
+    );
+    footer.append(inner);
+    footerMount.append(footer);
   }
 
   const menuButton = document.querySelector('.mobile-menu-button');
@@ -54,9 +96,16 @@
       menu.querySelector('a')?.focus();
     };
     menuButton.addEventListener('click', () => menu.hidden ? open() : close());
-    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !menu.hidden) { close(); menuButton.focus(); } });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !menu.hidden) {
+        close();
+        menuButton.focus();
+      }
+    });
     menu.querySelectorAll('a').forEach(link => link.addEventListener('click', close));
-    window.matchMedia('(min-width: 768px)').addEventListener('change', event => { if (event.matches) close(); });
+    window.matchMedia('(min-width: 768px)').addEventListener('change', event => {
+      if (event.matches) close();
+    });
   }
 
   const filterButtons = document.querySelectorAll('[data-filter]');
@@ -68,7 +117,9 @@
         const categories = (card.dataset.projectCategories || '').split(' ');
         card.hidden = Boolean(active && !categories.includes(active));
       });
-      filterButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === active)));
+      filterButtons.forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.filter === active));
+      });
     };
     filterButtons.forEach(button => button.addEventListener('click', () => {
       active = active === button.dataset.filter ? '' : button.dataset.filter;
