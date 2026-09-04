@@ -1,0 +1,47 @@
+name: Capture QuantoLab media
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'qa/capture-quantolab-media.mjs'
+      - '.github/workflows/capture-quantolab-media.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture real QuantoLab screens
+        run: node qa/capture-quantolab-media.mjs
+
+      - name: Commit refreshed product media
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/quantolab/*.png
+          if git diff --cached --quiet; then
+            echo "No visual changes to commit."
+            exit 0
+          fi
+          git commit -m "Refresh QuantoLab product screenshots"
+          git push
