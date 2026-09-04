@@ -1,36 +1,30 @@
 /*
- * Portfolio V2 — canonical Figma parity layer
- * -------------------------------------------
- * Source of truth: Portfolio / Screens + DS / Components.
- * This file intentionally loads last and normalizes the existing static
- * HTML/CSS implementation without changing the approved product direction.
+ * Portfolio V2 — stabilization layer
+ * ----------------------------------
+ * Figma remains the structural source of truth. This layer preserves the two
+ * approved web refinements documented in DESIGN.md: quieter display type and
+ * no prominent full-width section divider rules.
  */
 
 :root {
-  --line: rgba(123,123,123,.32);
   --content: 1296px;
   --gutter: 72px;
   --section: 64px;
   --header-height: 76px;
   --footer-height: 88px;
-  --display: 80px;
-  --case-title: 64px;
-  --h2: 40px;
+  --display: 66px;
+  --case-title: 56px;
+  --h2: 36px;
 }
 
 /* Shared shell ----------------------------------------------------------- */
 .site-header,
 .site-footer {
   background: transparent !important;
+  border: 0 !important;
 }
-.site-header {
-  min-height: 76px !important;
-  border-bottom: 1px solid var(--line) !important;
-}
-.site-footer {
-  min-height: 88px !important;
-  border-top: 1px solid var(--line) !important;
-}
+.site-header { min-height: 76px !important; }
+.site-footer { min-height: 88px !important; }
 .header-inner,
 .footer-inner,
 .section-inner {
@@ -38,7 +32,7 @@
 }
 .brand {
   font-size: 14px !important;
-  line-height: 20px !important;
+  line-height: 18px !important;
   font-weight: 500 !important;
 }
 .desktop-nav {
@@ -54,7 +48,7 @@
 .desktop-nav a,
 .desktop-nav span {
   font-size: 14px !important;
-  line-height: 20px !important;
+  line-height: 18px !important;
 }
 .footer-label {
   color: var(--muted) !important;
@@ -62,19 +56,17 @@
   line-height: 18px !important;
 }
 
+/* Approved web refinement: spacing/atmosphere, not full-width rules, creates hierarchy. */
 main > .section,
-.home-section {
-  border: 0 !important;
+.home-section,
+.home-page .site-header,
+.home-page .site-footer {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
 }
-main > .section + .section,
-.home-section + .home-section {
-  border-top: 1px solid var(--line) !important;
-}
-.soft-band {
-  background: rgba(255,255,255,.04) !important;
-}
+.soft-band { background: rgba(255,255,255,.04) !important; }
 
-/* Remove decorative additions that do not exist in the approved screens. */
+/* Remove decorative additions not present in the approved composition. */
 .project-visual::before,
 .project-visual::after,
 .solution-placeholder::before,
@@ -84,37 +76,33 @@ main > .section + .section,
   content: none !important;
 }
 
-/* Shared typography and rhythm ------------------------------------------ */
-.section-inner {
-  padding-block: 64px !important;
-}
-.section-inner.compact {
-  padding-block: 64px !important;
-}
+/* Shared rhythm and approved quieter hierarchy ------------------------- */
+.section-inner { padding-block: 64px !important; }
+.section-inner.compact { padding-block: 64px !important; }
 .hero {
   padding-top: 72px !important;
   padding-bottom: 64px !important;
 }
 .page-title,
 .display {
-  font-size: 80px !important;
-  line-height: 84px !important;
+  font-size: 66px !important;
+  line-height: 72px !important;
   font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  letter-spacing: -.018em !important;
 }
 .case-title {
-  font-size: 64px !important;
-  line-height: 70px !important;
+  font-size: 56px !important;
+  line-height: 62px !important;
   font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  letter-spacing: -.014em !important;
 }
 .section-title,
 .profile-name,
 .capability-title,
 .resume-cta h2 {
-  font-size: 40px !important;
-  line-height: 48px !important;
-  letter-spacing: 0 !important;
+  font-size: 36px !important;
+  line-height: 44px !important;
+  letter-spacing: -.012em !important;
 }
 .hero-copy {
   max-width: 1040px !important;
@@ -122,20 +110,13 @@ main > .section + .section,
   line-height: 32px !important;
 }
 
-/* Structural rows are not cards. */
+/* Structural rows stay flat. Home process keeps its intentional internal rules. */
 .process-row,
 .timeline-row,
 .work-row {
   background: transparent !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-}
-.work-row,
-.work-row:first-child,
-.timeline-row,
-.timeline-row:first-child,
-.process-row,
-.process-row:first-child {
   border-top: 0 !important;
   border-bottom: 0 !important;
 }
@@ -147,22 +128,20 @@ body[data-page='Home'] .home-inner {
 }
 body[data-page='Home'] .home-identity__inner { gap: 16px !important; }
 body[data-page='Home'] .home-identity h1 {
-  font-size: 80px !important;
-  line-height: 84px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  font-size: 66px !important;
+  line-height: 72px !important;
+  letter-spacing: -.018em !important;
 }
 body[data-page='Home'] .home-identity__inner > p,
 body[data-page='Home'] .home-identity p {
-  font-size: 36px !important;
-  line-height: 42px !important;
+  font-size: 32px !important;
+  line-height: 40px !important;
 }
 body[data-page='Home'] .home-value__inner { gap: 24px !important; }
 body[data-page='Home'] .home-value__statement {
   max-width: 1100px !important;
-  font-size: 56px !important;
-  line-height: 64px !important;
-  letter-spacing: 0 !important;
+  font-size: 50px !important;
+  line-height: 58px !important;
 }
 body[data-page='Home'] .home-value__support {
   max-width: 1040px !important;
@@ -171,7 +150,7 @@ body[data-page='Home'] .home-value__support {
 }
 body[data-page='Home'] .home-about__inner {
   grid-template-columns: 320px minmax(0,620px) !important;
-  gap: 72px !important;
+  gap: 48px !important;
   justify-content: start !important;
   align-items: center !important;
 }
@@ -211,8 +190,8 @@ body[data-page='Home'] .home-work__header {
 }
 body[data-page='Home'] .home-work__header h2,
 body[data-page='Home'] .home-process h2 {
-  font-size: 40px !important;
-  line-height: 48px !important;
+  font-size: 36px !important;
+  line-height: 44px !important;
 }
 body[data-page='Home'] .home-work__header p {
   width: 300px !important;
@@ -266,8 +245,8 @@ body[data-page='Home'] .home-process__row p {
 }
 body[data-page='Home'] .home-capabilities__inner { gap: 32px !important; }
 body[data-page='Home'] .home-capabilities h2 {
-  font-size: 36px !important;
-  line-height: 44px !important;
+  font-size: 34px !important;
+  line-height: 42px !important;
 }
 body[data-page='Home'] .home-capabilities__grid { gap: 64px !important; }
 body[data-page='Home'] .home-capabilities__grid > div { width: 430px !important; }
@@ -281,7 +260,7 @@ body[data-page='Home'] .home-capabilities__grid ul {
 }
 body[data-page='Home'] .home-contact__inner { gap: 32px !important; }
 body[data-page='Home'] .home-contact h2 {
-  font-size: 48px !important;
+  font-size: 46px !important;
   line-height: 52px !important;
 }
 body[data-page='Home'] .home-contact__row { min-height: 130px !important; }
@@ -297,19 +276,13 @@ body[data-page='Home'] .home-contact__links {
 
 /* WORK ------------------------------------------------------------------ */
 body[data-page='Work'] .hero-copy,
-body[data-page='Experience'] .hero-copy {
-  color: var(--text) !important;
-}
+body[data-page='Experience'] .hero-copy { color: var(--text) !important; }
 body[data-page='Work'] main > .section:first-child .section-inner {
   padding-top: 72px !important;
   padding-bottom: 64px !important;
 }
-body[data-page='Work'] main > .section:nth-child(2) .section-inner {
-  padding-block: 48px !important;
-}
-body[data-page='Work'] .section-heading-row {
-  margin-bottom: 32px !important;
-}
+body[data-page='Work'] main > .section:nth-child(2) .section-inner { padding-block: 48px !important; }
+body[data-page='Work'] .section-heading-row { margin-bottom: 32px !important; }
 body[data-page='Work'] .filter-row { margin-top: 16px !important; }
 body[data-page='Work'] .filter-chip {
   min-width: 52px !important;
@@ -327,19 +300,10 @@ body[data-page='Work'] .project-card {
   padding: 20px !important;
   gap: 16px !important;
 }
-body[data-page='Work'] .card-meta {
-  font-size: 14px !important;
-  line-height: 18px !important;
-}
+body[data-page='Work'] .card-meta { font-size: 14px !important; line-height: 18px !important; }
 body[data-page='Work'] .project-visual { height: 280px !important; }
-body[data-page='Work'] .project-card h3 {
-  font-size: 26px !important;
-  line-height: 32px !important;
-}
-body[data-page='Work'] .project-card p {
-  font-size: 16px !important;
-  line-height: 20px !important;
-}
+body[data-page='Work'] .project-card h3 { font-size: 26px !important; line-height: 32px !important; }
+body[data-page='Work'] .project-card p { font-size: 16px !important; line-height: 20px !important; }
 body[data-page='Work'] .more-work { margin-top: 58px !important; }
 body[data-page='Work'] .work-row {
   grid-template-columns: 48px minmax(260px,1fr) 240px 56px !important;
@@ -347,32 +311,20 @@ body[data-page='Work'] .work-row {
   min-height: 72px !important;
   padding: 18px 0 !important;
 }
-body[data-page='Work'] .work-index {
-  font-size: 14px !important;
-  line-height: 18px !important;
-}
-body[data-page='Work'] .work-title {
-  font-size: 26px !important;
-  line-height: 32px !important;
-}
+body[data-page='Work'] .work-index { font-size: 14px !important; line-height: 18px !important; }
+body[data-page='Work'] .work-title { font-size: 26px !important; line-height: 32px !important; }
 body[data-page='Work'] .work-meta,
-body[data-page='Work'] .work-year {
-  font-size: 16px !important;
-  line-height: 20px !important;
-}
+body[data-page='Work'] .work-year { font-size: 16px !important; line-height: 20px !important; }
 body[data-page='Work'] main > .section:last-child .section-inner {
   padding-top: 72px !important;
   padding-bottom: 64px !important;
 }
 body[data-page='Work'] .next-project h2 {
-  font-size: 42px !important;
-  line-height: 50px !important;
+  font-size: 40px !important;
+  line-height: 48px !important;
 }
 body[data-page='Work'] .next-project > p,
-body[data-page='Work'] .next-project .body-large {
-  font-size: 22px !important;
-  line-height: 30px !important;
-}
+body[data-page='Work'] .next-project .body-large { font-size: 22px !important; line-height: 30px !important; }
 
 /* ABOUT ----------------------------------------------------------------- */
 body[data-page='About'] .hero {
@@ -404,28 +356,16 @@ body[data-page='About'] .profile-photo {
   filter: grayscale(1) !important;
 }
 body[data-page='About'] .profile-copy { gap: 24px !important; }
-body[data-page='About'] .profile-name {
-  font-size: 40px !important;
-  line-height: 48px !important;
-}
-body[data-page='About'] .profile-role {
-  font-size: 22px !important;
-  line-height: 32px !important;
-}
-body[data-page='About'] .body-large {
-  font-size: 20px !important;
-  line-height: 30px !important;
-}
+body[data-page='About'] .profile-name { font-size: 36px !important; line-height: 44px !important; }
+body[data-page='About'] .profile-role { font-size: 22px !important; line-height: 32px !important; }
+body[data-page='About'] .body-large { font-size: 20px !important; line-height: 30px !important; }
 body[data-page='About'] .principles-panel {
   min-height: 380px !important;
   margin-top: 32px !important;
   border-radius: 12px !important;
   background: #222 !important;
 }
-body[data-page='About'] .principle {
-  min-height: 380px !important;
-  padding: 24px !important;
-}
+body[data-page='About'] .principle { min-height: 380px !important; padding: 24px !important; }
 body[data-page='About'] .principle h3 {
   margin-top: 18px !important;
   font-size: 24px !important;
@@ -437,8 +377,8 @@ body[data-page='About'] .principle p {
   line-height: 28px !important;
 }
 body[data-page='About'] .next-project h2 {
-  font-size: 42px !important;
-  line-height: 50px !important;
+  font-size: 40px !important;
+  line-height: 48px !important;
   font-style: normal !important;
 }
 .contact-inline {
@@ -464,56 +404,31 @@ body[data-page='Experience'] .timeline-row {
   min-height: 210px !important;
   padding: 24px 0 !important;
 }
-body[data-page='Experience'] .timeline-role h3 {
-  font-size: 24px !important;
-  line-height: 32px !important;
-}
-body[data-page='Experience'] .timeline-role p {
-  margin-top: 8px !important;
-  font-size: 18px !important;
-  line-height: 24px !important;
-}
-body[data-page='Experience'] .timeline-copy {
-  font-size: 18px !important;
-  line-height: 28px !important;
-}
+body[data-page='Experience'] .timeline-role h3 { font-size: 24px !important; line-height: 32px !important; }
+body[data-page='Experience'] .timeline-role p { margin-top: 8px !important; font-size: 18px !important; line-height: 24px !important; }
+body[data-page='Experience'] .timeline-copy { font-size: 18px !important; line-height: 28px !important; }
 body[data-page='Experience'] .education-grid {
   margin-top: 24px !important;
   min-height: 250px !important;
   gap: 32px !important;
 }
-body[data-page='Experience'] .education-block h3 {
-  font-size: 18px !important;
-  line-height: 24px !important;
-}
-body[data-page='Experience'] .education-block p {
-  font-size: 22px !important;
-  line-height: 32px !important;
-}
+body[data-page='Experience'] .education-block h3 { font-size: 18px !important; line-height: 24px !important; }
+body[data-page='Experience'] .education-block p { font-size: 22px !important; line-height: 32px !important; }
 body[data-page='Experience'] .capabilities {
   min-height: 214px !important;
   gap: 32px !important;
   padding: 24px !important;
   border-radius: 12px !important;
 }
-body[data-page='Experience'] .cap-label {
-  font-size: 14px !important;
-  line-height: 18px !important;
-}
+body[data-page='Experience'] .cap-label { font-size: 14px !important; line-height: 18px !important; }
 body[data-page='Experience'] .capabilities .capability-list {
   margin-top: 12px !important;
   font-size: 22px !important;
   line-height: 34px !important;
 }
-body[data-page='Experience'] .resume-cta h2 {
-  font-size: 40px !important;
-  line-height: 48px !important;
-}
 
 /* CASE STUDY ------------------------------------------------------------ */
-body[data-page='Aureum Hub'] main > .section:first-child .section-inner {
-  padding-block: 64px !important;
-}
+body[data-page='Aureum Hub'] main > .section:first-child .section-inner { padding-block: 64px !important; }
 body[data-page='Aureum Hub'] .hero-copy {
   margin-top: 16px !important;
   max-width: 1040px !important;
@@ -526,37 +441,15 @@ body[data-page='Aureum Hub'] .case-meta {
   grid-template-columns: repeat(4,minmax(0,1fr)) !important;
   border-radius: 16px !important;
 }
-body[data-page='Aureum Hub'] .case-meta-item {
-  padding: 12px 16px !important;
-}
-body[data-page='Aureum Hub'] .meta-label {
-  font-size: 12px !important;
-  line-height: 16px !important;
-}
-body[data-page='Aureum Hub'] .meta-value {
-  margin-top: 8px !important;
-  font-size: 18px !important;
-  line-height: 24px !important;
-}
-body[data-page='Aureum Hub'] .two-columns {
-  gap: 32px !important;
-}
+body[data-page='Aureum Hub'] .case-meta-item { padding: 12px 16px !important; }
+body[data-page='Aureum Hub'] .meta-label { font-size: 12px !important; line-height: 16px !important; }
+body[data-page='Aureum Hub'] .meta-value { margin-top: 8px !important; font-size: 18px !important; line-height: 24px !important; }
+body[data-page='Aureum Hub'] .two-columns { gap: 32px !important; }
 body[data-page='Aureum Hub'] .info-block { gap: 16px !important; }
-body[data-page='Aureum Hub'] .info-block h3 {
-  font-size: 18px !important;
-  line-height: 24px !important;
-}
-body[data-page='Aureum Hub'] .info-block p {
-  font-size: 22px !important;
-  line-height: 32px !important;
-}
-body[data-page='Aureum Hub'] main > .section:nth-child(3) .section-inner {
-  padding-block: 32px !important;
-}
-body[data-page='Aureum Hub'] .product-scene {
-  height: 440px !important;
-  border-radius: 20px !important;
-}
+body[data-page='Aureum Hub'] .info-block h3 { font-size: 18px !important; line-height: 24px !important; }
+body[data-page='Aureum Hub'] .info-block p { font-size: 22px !important; line-height: 32px !important; }
+body[data-page='Aureum Hub'] main > .section:nth-child(3) .section-inner { padding-block: 32px !important; }
+body[data-page='Aureum Hub'] .product-scene { height: 440px !important; border-radius: 20px !important; }
 body[data-page='Aureum Hub'] .process-list { margin-top: 24px !important; }
 body[data-page='Aureum Hub'] .process-row {
   grid-template-columns: 100px 250px minmax(0,1fr) !important;
@@ -564,46 +457,25 @@ body[data-page='Aureum Hub'] .process-row {
   min-height: 118px !important;
   padding: 24px 0 !important;
 }
-body[data-page='Aureum Hub'] .step-number {
-  font-size: 14px !important;
-  line-height: 18px !important;
-}
-body[data-page='Aureum Hub'] .step-title {
-  font-size: 20px !important;
-  line-height: 26px !important;
-}
-body[data-page='Aureum Hub'] .step-copy {
-  font-size: 18px !important;
-  line-height: 28px !important;
-}
-body[data-page='Aureum Hub'] .solution-visuals {
-  gap: 20px !important;
-  margin-top: 24px !important;
-}
-body[data-page='Aureum Hub'] .solution-placeholder {
-  min-height: 400px !important;
-}
-body[data-page='Aureum Hub'] .solution-copy {
-  margin-top: 24px !important;
-  font-size: 20px !important;
-  line-height: 30px !important;
-}
+body[data-page='Aureum Hub'] .step-number { font-size: 14px !important; line-height: 18px !important; }
+body[data-page='Aureum Hub'] .step-title { font-size: 20px !important; line-height: 26px !important; }
+body[data-page='Aureum Hub'] .step-copy { font-size: 18px !important; line-height: 28px !important; }
+body[data-page='Aureum Hub'] .solution-visuals { gap: 20px !important; margin-top: 24px !important; }
+body[data-page='Aureum Hub'] .solution-placeholder { min-height: 400px !important; }
+body[data-page='Aureum Hub'] .solution-copy { margin-top: 24px !important; font-size: 20px !important; line-height: 30px !important; }
 body[data-page='Aureum Hub'] main > .section:last-child .section-inner {
   padding-top: 72px !important;
   padding-bottom: 64px !important;
 }
-body[data-page='Aureum Hub'] .next-project h2 {
-  font-size: 40px !important;
-  line-height: 48px !important;
-}
+body[data-page='Aureum Hub'] .next-project h2 { font-size: 36px !important; line-height: 44px !important; }
 
-/* TABLET — canonical 1024 mode ------------------------------------------ */
+/* TABLET — canonical 1024 behavior -------------------------------------- */
 @media (max-width: 1199px) and (min-width: 768px) {
   :root {
     --gutter: 48px;
     --section: 64px;
-    --display: 56px;
-    --case-title: 50px;
+    --display: 50px;
+    --case-title: 46px;
     --h2: 32px;
     --footer-height: 80px;
   }
@@ -617,30 +489,20 @@ body[data-page='Aureum Hub'] .next-project h2 {
   .desktop-nav span { font-size: 14px !important; line-height: 20px !important; }
   .footer-label { font-size: 13px !important; line-height: 18px !important; }
   .page-title,
-  .display {
-    font-size: 56px !important;
-    line-height: 62px !important;
-  }
-  .case-title {
-    font-size: 50px !important;
-    line-height: 56px !important;
-  }
+  .display { font-size: 50px !important; line-height: 56px !important; }
+  .case-title { font-size: 46px !important; line-height: 52px !important; }
   .section-title,
   .profile-name,
   .capability-title,
-  .resume-cta h2 {
-    font-size: 32px !important;
-    line-height: 40px !important;
-  }
+  .resume-cta h2 { font-size: 32px !important; line-height: 40px !important; }
   .hero {
     padding-top: 48px !important;
     padding-bottom: 64px !important;
   }
   .hero-copy { font-size: 18px !important; line-height: 28px !important; }
 
-  /* Home tablet */
   body[data-page='Home'] .home-inner { padding-block: 64px !important; }
-  body[data-page='Home'] .home-identity h1 { font-size: 56px !important; line-height: 62px !important; }
+  body[data-page='Home'] .home-identity h1 { font-size: 50px !important; line-height: 56px !important; }
   body[data-page='Home'] .home-identity p { font-size: 28px !important; line-height: 34px !important; }
   body[data-page='Home'] .home-value__statement { font-size: 40px !important; line-height: 48px !important; }
   body[data-page='Home'] .home-value__support { font-size: 18px !important; line-height: 28px !important; }
@@ -655,7 +517,7 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Home'] .home-work__header h2,
   body[data-page='Home'] .home-process h2 { font-size: 32px !important; line-height: 40px !important; }
   body[data-page='Home'] .home-work__header p { font-size: 17px !important; line-height: 26px !important; }
-  body[data-page='Home'] .home-project-card { min-height: 430px !important; }
+  body[data-page='Home'] .home-project-card { min-height: 0 !important; }
   body[data-page='Home'] .home-project-card__meta { font-size: 13px !important; line-height: 18px !important; }
   body[data-page='Home'] .home-project-card__visual { height: 280px !important; flex-basis: 280px !important; }
   body[data-page='Home'] .home-project-card h3 { font-size: 20px !important; line-height: 26px !important; }
@@ -671,7 +533,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Home'] .home-contact__row > p { font-size: 22px !important; line-height: 30px !important; }
   body[data-page='Home'] .home-contact__links { font-size: 17px !important; line-height: 26px !important; }
 
-  /* Work tablet */
   body[data-page='Work'] main > .section:first-child .section-inner { padding-top: 48px !important; padding-bottom: 64px !important; }
   body[data-page='Work'] main > .section:nth-child(2) .section-inner { padding-block: 48px !important; }
   body[data-page='Work'] .filter-chip {
@@ -698,10 +559,7 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Work'] .work-year { font-size: 15px !important; line-height: 22px !important; }
   body[data-page='Work'] main > .section:last-child .section-inner { padding-top: 48px !important; padding-bottom: 64px !important; }
   body[data-page='Work'] .next-project h2 { font-size: 34px !important; line-height: 42px !important; }
-  body[data-page='Work'] .next-project > p,
-  body[data-page='Work'] .next-project .body-large { font-size: 22px !important; line-height: 30px !important; }
 
-  /* About tablet */
   body[data-page='About'] .profile-grid { grid-template-columns: 360px minmax(0,1fr) !important; gap: 48px !important; }
   body[data-page='About'] .profile-photo { width: 360px !important; height: 430px !important; }
   body[data-page='About'] .profile-name { font-size: 32px !important; line-height: 40px !important; }
@@ -710,7 +568,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='About'] .principle h3 { font-size: 22px !important; line-height: 30px !important; }
   body[data-page='About'] .principle p { font-size: 17px !important; line-height: 26px !important; }
 
-  /* Experience tablet */
   body[data-page='Experience'] .timeline-row {
     grid-template-columns: 150px minmax(260px,.9fr) minmax(0,1.1fr) !important;
     gap: 28px !important;
@@ -718,7 +575,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Experience'] .education-block p { font-size: 18px !important; line-height: 28px !important; }
   body[data-page='Experience'] .capabilities .capability-list { font-size: 18px !important; line-height: 30px !important; }
 
-  /* Case tablet */
   body[data-page='Aureum Hub'] .hero-copy { font-size: 18px !important; line-height: 28px !important; }
   body[data-page='Aureum Hub'] .info-block p { font-size: 18px !important; line-height: 28px !important; }
   body[data-page='Aureum Hub'] .process-row { grid-template-columns: 88px 220px minmax(0,1fr) !important; }
@@ -726,15 +582,15 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Aureum Hub'] .solution-copy { font-size: 18px !important; line-height: 28px !important; }
 }
 
-/* MOBILE — canonical 390 mode, fluid down to 320 ----------------------- */
+/* MOBILE — 390 reference, fluid down to 320 ----------------------------- */
 @media (max-width: 767px) {
   :root {
     --gutter: 20px;
     --section: 56px;
     --header-height: 68px;
     --footer-height: 72px;
-    --display: 40px;
-    --case-title: 40px;
+    --display: 36px;
+    --case-title: 34px;
     --h2: 26px;
   }
   .site-header { min-height: 68px !important; }
@@ -753,11 +609,7 @@ body[data-page='Aureum Hub'] .next-project h2 {
     font-size: 14px !important;
     line-height: 20px !important;
   }
-  .footer-label {
-    color: var(--text) !important;
-    font-size: 12px !important;
-    line-height: 16px !important;
-  }
+  .footer-label { font-size: 12px !important; line-height: 16px !important; }
   .section-inner,
   .section-inner.compact { padding-block: 56px !important; }
   .hero {
@@ -765,34 +617,20 @@ body[data-page='Aureum Hub'] .next-project h2 {
     padding-bottom: 56px !important;
   }
   .page-title,
-  .display {
-    font-size: 40px !important;
-    line-height: 46px !important;
-  }
-  .case-title {
-    font-size: 40px !important;
-    line-height: 46px !important;
-  }
+  .display { font-size: 36px !important; line-height: 42px !important; }
+  .case-title { font-size: 34px !important; line-height: 40px !important; }
   .section-title,
   .profile-name,
   .capability-title,
-  .resume-cta h2 {
-    font-size: 26px !important;
-    line-height: 34px !important;
-  }
-  .hero-copy {
-    margin-top: 16px !important;
-    font-size: 17px !important;
-    line-height: 26px !important;
-  }
+  .resume-cta h2 { font-size: 26px !important; line-height: 34px !important; }
+  .hero-copy { margin-top: 16px !important; font-size: 17px !important; line-height: 26px !important; }
 
-  /* Home mobile */
   body[data-page='Home'] .home-inner {
     width: min(calc(100% - 40px),1296px) !important;
     padding-block: 56px !important;
   }
-  body[data-page='Home'] .home-identity h1 { font-size: 40px !important; line-height: 46px !important; }
-  body[data-page='Home'] .home-identity p { font-size: 22px !important; line-height: 30px !important; }
+  body[data-page='Home'] .home-identity h1 { font-size: 36px !important; line-height: 42px !important; }
+  body[data-page='Home'] .home-identity p { font-size: 21px !important; line-height: 29px !important; }
   body[data-page='Home'] .home-value__statement { font-size: 30px !important; line-height: 38px !important; }
   body[data-page='Home'] .home-value__support { font-size: 17px !important; line-height: 26px !important; }
   body[data-page='Home'] .home-about__inner {
@@ -864,7 +702,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Home'] .home-contact__row > p,
   body[data-page='Home'] .home-contact__links { font-size: 16px !important; line-height: 24px !important; }
 
-  /* Work mobile */
   body[data-page='Work'] main > .section:first-child .section-inner { padding-top: 20px !important; padding-bottom: 56px !important; }
   body[data-page='Work'] main > .section:nth-child(2) .section-inner { padding-block: 40px !important; }
   body[data-page='Work'] .section-heading-row { gap: 16px !important; margin-bottom: 32px !important; }
@@ -911,13 +748,8 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Work'] .next-project > p,
   body[data-page='Work'] .next-project .body-large { font-size: 16px !important; line-height: 24px !important; }
 
-  /* About mobile */
   body[data-page='About'] .hero { padding-top: 20px !important; padding-bottom: 56px !important; }
-  body[data-page='About'] .hero-subtitle {
-    margin-top: 16px !important;
-    font-size: 22px !important;
-    line-height: 30px !important;
-  }
+  body[data-page='About'] .hero-subtitle { margin-top: 16px !important; font-size: 22px !important; line-height: 30px !important; }
   body[data-page='About'] .hero-copy { margin-top: 16px !important; font-size: 17px !important; line-height: 26px !important; }
   body[data-page='About'] .profile-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
   body[data-page='About'] .profile-photo {
@@ -935,16 +767,12 @@ body[data-page='Aureum Hub'] .next-project h2 {
     min-height: 0 !important;
     margin-top: 24px !important;
   }
-  body[data-page='About'] .principle {
-    min-height: 0 !important;
-    padding: 20px !important;
-  }
+  body[data-page='About'] .principle { min-height: 0 !important; padding: 20px !important; }
   body[data-page='About'] .principle h3 { font-size: 20px !important; line-height: 28px !important; }
   body[data-page='About'] .principle p { font-size: 16px !important; line-height: 24px !important; }
   body[data-page='About'] .next-project h2 { font-size: 32px !important; line-height: 38px !important; }
   .contact-inline { gap: 8px 20px !important; font-size: 16px !important; line-height: 24px !important; }
 
-  /* Experience mobile */
   body[data-page='Experience'] .hero { padding-top: 20px !important; padding-bottom: 56px !important; }
   body[data-page='Experience'] .timeline-row {
     grid-template-columns: 1fr !important;
@@ -960,11 +788,10 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Experience'] .capabilities { grid-template-columns: 1fr !important; gap: 32px !important; min-height: 0 !important; padding: 20px !important; }
   body[data-page='Experience'] .capabilities .capability-list { font-size: 16px !important; line-height: 24px !important; }
 
-  /* Case mobile */
   body[data-page='Aureum Hub'] main > .section:first-child .section-inner { padding-top: 20px !important; padding-bottom: 56px !important; }
   body[data-page='Aureum Hub'] .hero-copy { font-size: 17px !important; line-height: 26px !important; }
   body[data-page='Aureum Hub'] .case-meta {
-    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    grid-template-columns: 1fr !important;
     min-height: 0 !important;
     border-radius: 14px !important;
   }
@@ -973,7 +800,7 @@ body[data-page='Aureum Hub'] .next-project h2 {
     border-right: 0 !important;
     border-bottom: 1px solid rgba(255,255,255,.11) !important;
   }
-  body[data-page='Aureum Hub'] .case-meta-item:nth-last-child(-n+2) { border-bottom: 0 !important; }
+  body[data-page='Aureum Hub'] .case-meta-item:last-child { border-bottom: 0 !important; }
   body[data-page='Aureum Hub'] .meta-value { font-size: 16px !important; line-height: 24px !important; }
   body[data-page='Aureum Hub'] .two-columns { grid-template-columns: 1fr !important; gap: 32px !important; }
   body[data-page='Aureum Hub'] .info-block h3 { font-size: 16px !important; line-height: 24px !important; }
@@ -996,7 +823,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Aureum Hub'] .next-project h2 { font-size: 28px !important; line-height: 36px !important; }
 }
 
-/* Narrow mobile safety: preserve gutters and prevent footer collisions. */
 @media (max-width: 359px) {
   .footer-inner { gap: 12px !important; }
   .footer-label { font-size: 11px !important; line-height: 15px !important; }
@@ -1004,7 +830,6 @@ body[data-page='Aureum Hub'] .next-project h2 {
   body[data-page='Home'] .home-value__statement { font-size: 28px !important; line-height: 36px !important; }
 }
 
-/* Wide screens keep the 1296px content contract. */
 @media (min-width: 1600px) {
   :root { --gutter: 96px; }
 }
