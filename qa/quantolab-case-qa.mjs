@@ -24,6 +24,16 @@ for (const viewport of viewports) {
   const response = await page.goto(`${baseURL}/work/quantolab/`, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts?.ready);
 
+  // Lazy-loaded screenshots below the first viewport are valid product media, not broken images.
+  // Force them to load before the integrity scan so QA measures actual failures only.
+  await page.evaluate(() => {
+    for (const img of document.images) img.loading = 'eager';
+  });
+  await page.waitForFunction(
+    () => [...document.images].every(img => img.complete),
+    { timeout: 10000 }
+  );
+
   const result = await page.evaluate(() => {
     const h1 = document.querySelector('.case-title');
     const h1Style = h1 ? getComputedStyle(h1) : null;
@@ -40,7 +50,7 @@ for (const viewport of viewports) {
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
       bodyWidth: document.body.scrollWidth,
-      brokenImages: [...document.images].filter(img => !img.complete || img.naturalWidth === 0).map(img => img.src),
+      brokenImages: [...document.images].filter(img => img.naturalWidth === 0).map(img => img.src),
       liveHref: live?.href || '',
       liveTarget: live?.target || '',
       hasCanvas: Boolean(canvas),
