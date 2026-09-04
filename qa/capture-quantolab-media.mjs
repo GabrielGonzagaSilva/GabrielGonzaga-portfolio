@@ -15,6 +15,7 @@ const captures = [
 
 const browser = await chromium.launch({ headless: true });
 const failures = [];
+const blockedHosts = ['googlesyndication.com', 'doubleclick.net', 'googleadservices.com'];
 
 for (const capture of captures) {
   const page = await browser.newPage({
@@ -23,19 +24,19 @@ for (const capture of captures) {
     reducedMotion: 'reduce',
   });
 
+  await page.route('**/*', route => {
+    const requestUrl = route.request().url();
+    if (blockedHosts.some(host => requestUrl.includes(host))) return route.abort();
+    return route.continue();
+  });
+
   try {
-    const response = await page.goto(capture.url, { waitUntil: 'networkidle', timeout: 45000 });
+    const response = await page.goto(capture.url, { waitUntil: 'domcontentloaded', timeout: 45000 });
     if (!response || response.status() >= 400) throw new Error(`HTTP ${response?.status() ?? 'no response'}`);
 
-    await page.addStyleTag({ content: `
-      html { scroll-behavior: auto !important; }
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-      iframe[src*="doubleclick"], iframe[src*="googlesyndication"], ins.adsbygoogle,
-      [id*="google_ads"], [class*="ad-slot"], [class*="ads-slot"] { display: none !important; }
-    `});
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(900);
 
     const title = await page.title();
     if (!title) throw new Error('missing document title');
