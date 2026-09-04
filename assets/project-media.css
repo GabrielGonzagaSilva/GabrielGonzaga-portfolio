@@ -1,0 +1,99 @@
+/* Shared project media treatments. Keep product identity inside the media area only. */
+.project-visual--quantolab,
+body[data-page='Home'] .home-project-card__visual--quantolab {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  background: #f5f5f7;
+  color: #1c1c1f;
+}
+
+.quantolab-thumb {
+  position: absolute;
+  inset: 0;
+  padding: 24px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(217,255,102,.30), transparent 32%),
+    #f5f5f7;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.quantolab-thumb__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(28,28,31,.10);
+}
+.quantolab-thumb__brand {
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -.05em;
+}
+.quantolab-thumb__brand i { font-weight: 400; }
+.quantolab-thumb__nav {
+  display: flex;
+  gap: 10px;
+  color: #67676d;
+  font-size: 7px;
+  font-weight: 700;
+}
+.quantolab-thumb__body {
+  align-self: center;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 112px;
+  gap: 18px;
+  align-items: end;
+}
+.quantolab-thumb__copy small {
+  display: block;
+  margin-bottom: 8px;
+  color: #797980;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.quantolab-thumb__copy strong {
+  display: block;
+  max-width: 290px;
+  font-size: clamp(24px,3.3vw,40px);
+  line-height: .98;
+  letter-spacing: -.055em;
+}
+.quantolab-thumb__stats {
+  display: grid;
+  gap: 8px;
+}
+.quantolab-thumb__stat {
+  padding-top: 8px;
+  border-top: 1px solid rgba(28,28,31,.14);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.quantolab-thumb__stat b { font-size: 15px; }
+.quantolab-thumb__stat span { color: #76767c; font-size: 6px; text-align: right; }
+.quantolab-thumb__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #67676d;
+  font-size: 7px;
+}
+.quantolab-thumb__accent { color: #79a500; }
+
+@media (max-width: 767px) {
+  .quantolab-thumb { padding: 18px; gap: 12px; }
+  .quantolab-thumb__nav { display: none; }
+  .quantolab-thumb__body { grid-template-columns: 1fr; gap: 14px; align-items: center; }
+  .quantolab-thumb__copy strong { font-size: 28px; }
+  .quantolab-thumb__stats { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+  .quantolab-thumb__stat { display: block; }
+  .quantolab-thumb__stat span { display: block; margin-top: 2px; text-align: left; }
+  .quantolab-thumb__footer { display: none; }
+}
