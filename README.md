@@ -1,16 +1,28 @@
-# Gabriel Gonzaga — Portfolio V1
+# Gabriel Gonzaga — Product Design Portfolio
 
-First coded version of the portfolio translated from the current Figma design.
+Blue Master implementation of Gabriel Gonzaga's Product Design portfolio.
 
-## Routes
+## Public routes
 - `/` — Home
-- `/work/` — Work
+- `/work/` — Work index
 - `/work/aureum-hub/` — Aureum Hub case study
+- `/work/quantolab/` — QuantoLab case study
 - `/about/` — About
 - `/experience/` — Experience
 
 ## Stack
-Zero-build static HTML/CSS/JavaScript. This keeps the first version easy to publish on GitHub Pages and avoids adding framework dependencies before the content and asset set are final.
+Zero-build static HTML, CSS and JavaScript deployed through GitHub Pages. The implementation intentionally avoids a framework while the portfolio remains content-led and relatively small.
+
+## Design system
+`DESIGN.md` is the canonical implementation contract. The visual direction is **Blue Master**: obsidian/navy surfaces, controlled blue environmental light, Avenir Next in production with system fallbacks, editorial hierarchy and restrained motion.
+
+The Figma file mirrors the same system through Blue Master color, spacing and radius variables plus responsive masters for navigation, header, footer, project cards and case metadata. Avenir Next is not available in the connected Figma environment, so Inter is documented as the design-file proxy only.
+
+## Evidence rules
+- Aureum Hub is documented through product context, decisions, process, safeguards and current state. Confidential operational screens are not replaced with fictional UI.
+- QuantoLab uses real captures from the live product.
+- Tourism Design System and AI Governance are presented as summary-level systems work until full public case evidence exists.
+- No adoption, conversion or business-impact metrics are invented.
 
 ## Local preview
 ```bash
@@ -18,14 +30,8 @@ python3 -m http.server 4173
 ```
 Then open `http://localhost:4173/`.
 
-## Design implementation
-The interface is driven by CSS custom properties and fluid layout rules rather than fixed 390/1024/1440 screenshots. See `DESIGN.md`.
-
-## V1 known content/asset gaps
-- Email, LinkedIn and résumé URLs are not yet confirmed, so the visual labels are present without fake links.
-- Additional case-study imagery is still placeholder content.
-- The included portrait is a high-resolution 1254×1254 web export of the user-provided source and is rendered in grayscale non-destructively through CSS.
-- EN/PT is visually retained but localization is not active yet.
+## QA
+Browser QA lives in `qa/` and covers responsive geometry, overflow and critical portfolio routes through Playwright. The GitHub workflow runs the same checks on pull requests and the main branch.
 
 ## GitHub Pages
-This repository is static and Pages-ready. In repository Settings → Pages, select deployment from the `main` branch and `/ (root)` folder if Pages is not already enabled.
+The repository is static and Pages-ready. Production is published from the repository's configured Pages workflow.

@@ -8,7 +8,16 @@
     ['Work', `${root}work/`],
     ['About', `${root}about/`],
     ['Experience', `${root}experience/`],
+    ['Contact', `${root}#contact`],
   ];
+
+  if (!document.querySelector('link[rel="icon"]')) {
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/svg+xml';
+    favicon.href = `${root}assets/favicon.svg`;
+    document.head.append(favicon);
+  }
 
   const createText = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -24,12 +33,6 @@
       link.setAttribute('aria-current', 'page');
     }
     return link;
-  };
-
-  const createLocale = () => {
-    const locale = createText('span', 'locale', 'EN / PT');
-    locale.setAttribute('aria-label', 'Language selector coming later');
-    return locale;
   };
 
   if (headerMount) {
@@ -49,7 +52,6 @@
     desktopNav.className = 'desktop-nav';
     desktopNav.setAttribute('aria-label', 'Primary navigation');
     routes.forEach(([label, href]) => desktopNav.append(createRouteLink(label, href)));
-    desktopNav.append(createLocale());
     inner.append(desktopNav);
 
     const menuButton = createText('button', 'mobile-menu-button', 'MENU');
@@ -67,7 +69,6 @@
     const mobileNav = document.createElement('nav');
     mobileNav.setAttribute('aria-label', 'Mobile navigation');
     routes.forEach(([label, href]) => mobileNav.append(createRouteLink(label, href)));
-    mobileNav.append(createLocale());
     panel.append(mobileNav);
 
     header.append(inner, panel);
@@ -79,7 +80,7 @@
     footer.className = 'site-footer';
     const inner = document.createElement('div');
     inner.className = 'footer-inner';
-    const context = page === 'Home' ? 'Portfolio V2 / Home' : workCasePages.has(page) ? `Portfolio / ${page}` : `Portfolio V2 / ${page}`;
+    const context = page === 'Home' ? 'Portfolio / Product Designer' : workCasePages.has(page) ? `Case Study / ${page}` : `Portfolio / ${page}`;
     inner.append(
       createText('span', 'footer-label', 'Gabriel Gonzaga'),
       createText('span', 'footer-label', context),

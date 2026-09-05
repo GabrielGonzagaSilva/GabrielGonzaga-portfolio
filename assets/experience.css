@@ -1,0 +1,31 @@
+.experience-page .section-inner > *,
+.experience-page .timeline-row > *,
+.experience-page .education-grid > *,
+.experience-page .capabilities > *,
+.experience-page .resume-cta > *{
+  min-width:0;
+}
+
+.experience-page .capabilities{
+  margin-top:32px;
+}
+
+@media (max-width:767px){
+  .experience-page{
+    overflow-x:clip;
+  }
+
+  .experience-page .page-title{
+    max-width:100%;
+    font-size:clamp(46px,14vw,64px);
+    overflow-wrap:anywhere;
+  }
+
+  .experience-page .timeline-role,
+  .experience-page .timeline-copy,
+  .experience-page .education-block,
+  .experience-page .capabilities > div,
+  .experience-page .resume-cta{
+    overflow-wrap:anywhere;
+  }
+}
