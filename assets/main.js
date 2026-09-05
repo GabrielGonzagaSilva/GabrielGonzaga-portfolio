@@ -11,6 +11,14 @@
     ['Contact', `${root}#contact`],
   ];
 
+  if (!document.querySelector('link[rel="icon"]')) {
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/svg+xml';
+    favicon.href = `${root}assets/favicon.svg`;
+    document.head.append(favicon);
+  }
+
   const createText = (tag, className, text) => {
     const node = document.createElement(tag);
     if (className) node.className = className;
