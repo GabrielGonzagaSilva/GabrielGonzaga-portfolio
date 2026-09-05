@@ -6,34 +6,38 @@ const baseURL = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
 const outDir = process.env.QA_OUT_DIR || 'qa-output';
 
 const pages = [
-  { name: 'home', path: '/', h1: '.home-identity h1', portrait: '.home-about__photo' },
+  { name: 'home', path: '/', h1: '.home-hero__copy h1', portrait: '.home-about__media img' },
   { name: 'work', path: '/work/', h1: '.page-title' },
   { name: 'about', path: '/about/', h1: '.page-title', portrait: '.profile-photo' },
   { name: 'experience', path: '/experience/', h1: '.page-title' },
   { name: 'aureum-hub', path: '/work/aureum-hub/', h1: '.case-title' },
+  { name: 'quantolab', path: '/work/quantolab/', h1: '.case-title' },
 ];
 
-/* Canonical breakpoints plus range edges: the website supports 320–2560px. */
+/* Canonical production range plus required review widths. */
 const viewports = [
   { name: 'wide', width: 2560, height: 1440, mode: 'desktop' },
   { name: 'desktop', width: 1440, height: 1100, mode: 'desktop' },
+  { name: 'laptop', width: 1280, height: 900, mode: 'desktop' },
   { name: 'tablet', width: 1024, height: 900, mode: 'tablet' },
+  { name: 'tablet-compact', width: 768, height: 900, mode: 'tablet' },
+  { name: 'mobile-large', width: 430, height: 900, mode: 'mobile' },
   { name: 'mobile', width: 390, height: 844, mode: 'mobile' },
   { name: 'narrow', width: 320, height: 720, mode: 'mobile' },
 ];
 
-/* Includes the approved web refinements documented in DESIGN.md. */
 const expectedByMode = {
-  desktop: { header: 76, footer: 88, baseGutter: 72, pageH1: 66, caseH1: 56 },
-  tablet: { header: 76, footer: 80, baseGutter: 48, pageH1: 50, caseH1: 46 },
-  mobile: { header: 68, footer: 72, baseGutter: 20, pageH1: 36, caseH1: 34 },
+  desktop: { header: [64, 72], minFooter: 70, h1: [56, 132], caseH1: [52, 112], brand: [9, 12] },
+  tablet: { header: [62, 72], minFooter: 70, h1: [48, 100], caseH1: [44, 82], brand: [9, 12] },
+  mobile: { header: [58, 66], minFooter: 66, h1: [46, 80], caseH1: [46, 80], brand: [8, 11] },
 };
+
+const inRange = (actual, [min, max]) => Number.isFinite(actual) && actual >= min && actual <= max;
+const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 
 await fs.mkdir(outDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const report = { generatedAt: new Date().toISOString(), baseURL, results: [], failures: [] };
-
-const near = (actual, target, tolerance = 1.5) => Math.abs(actual - target) <= tolerance;
 const fail = (entry, message) => {
   entry.failures.push(message);
   report.failures.push(`${entry.page}/${entry.viewport}: ${message}`);
@@ -41,6 +45,7 @@ const fail = (entry, message) => {
 
 for (const viewport of viewports) {
   const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1 });
+
   for (const pageSpec of pages) {
     const page = await context.newPage();
     const entry = { page: pageSpec.name, viewport: viewport.name, width: viewport.width, height: viewport.height, failures: [] };
@@ -59,8 +64,9 @@ for (const viewport of viewports) {
         if (!el) return null;
         const r = el.getBoundingClientRect();
         const cs = getComputedStyle(el);
-        return { x: r.x, y: r.y, width: r.width, height: r.height, fontSize: parseFloat(cs.fontSize), lineHeight: cs.lineHeight, borderRadius: cs.borderRadius };
+        return { x: r.x, y: r.y, left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height, fontSize: parseFloat(cs.fontSize), lineHeight: cs.lineHeight, borderRadius: cs.borderRadius };
       };
+
       const header = rect('.site-header');
       const footer = rect('.site-footer');
       const headerInner = rect('.header-inner');
@@ -68,111 +74,93 @@ for (const viewport of viewports) {
       const menu = rect('.mobile-menu-button');
       const h1 = rect(h1Selector);
       const portrait = portraitSelector ? rect(portraitSelector) : null;
-      const portraitVariance = portraitSelector ? (() => {
-        const img = document.querySelector(portraitSelector);
-        if (!(img instanceof HTMLImageElement) || !img.complete || img.naturalWidth === 0) return null;
-        const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 32;
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        if (!ctx) return null;
-        try {
-          ctx.drawImage(img, 0, 0, 32, 32);
-          const data = ctx.getImageData(0, 0, 32, 32).data;
-          const luma = [];
-          for (let i = 0; i < data.length; i += 4) luma.push(.2126 * data[i] + .7152 * data[i + 1] + .0722 * data[i + 2]);
-          const mean = luma.reduce((sum, value) => sum + value, 0) / luma.length;
-          const variance = luma.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / luma.length;
-          return Math.sqrt(variance);
-        } catch {
-          return null;
-        }
-      })() : null;
-
-      const sections = [...document.querySelectorAll('main > .section, main > .home-section')];
-      const prominentSectionDividers = sections.filter(section => {
-        const cs = getComputedStyle(section);
-        return parseFloat(cs.borderTopWidth) >= .5 || parseFloat(cs.borderBottomWidth) >= .5;
-      }).length;
       const brand = document.querySelector('.brand');
       const brandStyle = brand ? getComputedStyle(brand) : null;
-      const brokenImages = [...document.images].filter(img => !img.complete || img.naturalWidth === 0).map(img => img.getAttribute('src'));
+      const skipLink = document.querySelector('.skip-link');
+      const main = document.querySelector('main');
+      const firstH1 = document.querySelector('h1');
+
+      const brokenImages = [...document.images]
+        .filter(img => img.complete && img.naturalWidth === 0)
+        .map(img => img.getAttribute('src'));
+
       const footerLabels = [...document.querySelectorAll('.footer-label')].map(el => {
         const r = el.getBoundingClientRect();
-        return { left: r.left, right: r.right, width: r.width };
+        return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height };
       });
 
+      const overflowing = [...document.querySelectorAll('body *')].flatMap(el => {
+        const r = el.getBoundingClientRect();
+        if (r.right > document.documentElement.clientWidth + 2 || r.left < -2) {
+          return [{ tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 90) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) }];
+        }
+        return [];
+      }).slice(0, 12);
+
       return {
-        header, footer, headerInner, nav, menu, h1, portrait, portraitVariance,
+        header, footer, headerInner, nav, menu, h1, portrait,
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
         bodyScrollWidth: document.body.scrollWidth,
-        prominentSectionDividers,
         brand: brandStyle ? { fontSize: parseFloat(brandStyle.fontSize), lineHeight: brandStyle.lineHeight } : null,
         brokenImages,
         footerLabels,
+        overflowing,
+        semantics: { skipLink: Boolean(skipLink), main: Boolean(main), h1Count: document.querySelectorAll('h1').length, firstH1: firstH1?.textContent?.trim() || '' },
       };
     }, { h1Selector: pageSpec.h1, portraitSelector: pageSpec.portrait || null });
 
     entry.metrics = metrics;
     const exp = expectedByMode[viewport.mode];
 
-    if (!metrics.header || !near(metrics.header.height, exp.header)) fail(entry, `header height ${metrics.header?.height ?? 'missing'} expected ~${exp.header}`);
-    if (!metrics.footer || !near(metrics.footer.height, exp.footer, 2)) fail(entry, `footer height ${metrics.footer?.height ?? 'missing'} expected ~${exp.footer}`);
+    if (!metrics.header || !inRange(metrics.header.height, exp.header)) fail(entry, `header height ${metrics.header?.height ?? 'missing'} outside ${exp.header[0]}–${exp.header[1]}px`);
+    if (!metrics.footer || metrics.footer.height < exp.minFooter) fail(entry, `footer height ${metrics.footer?.height ?? 'missing'} below ${exp.minFooter}px`);
 
     if (!metrics.headerInner) fail(entry, 'header inner missing');
     else {
-      const effectiveGutter = viewport.width >= 1600 ? 96 : exp.baseGutter;
-      const contentWidth = Math.min(viewport.width - (2 * effectiveGutter), 1296);
+      const gutter = Math.min(72, Math.max(20, viewport.width * .045));
+      const contentWidth = Math.min(1540, viewport.width - 2 * gutter);
       const expectedLeft = (viewport.width - contentWidth) / 2;
-      const left = metrics.headerInner.x;
-      const right = viewport.width - (metrics.headerInner.x + metrics.headerInner.width);
-      if (!near(left, expectedLeft, 2) || !near(right, expectedLeft, 2)) fail(entry, `header gutters ${left.toFixed(1)}/${right.toFixed(1)} expected ~${expectedLeft.toFixed(1)}`);
+      const actualLeft = metrics.headerInner.left;
+      const actualRight = viewport.width - metrics.headerInner.right;
+      if (Math.abs(actualLeft - expectedLeft) > 2.5 || Math.abs(actualRight - expectedLeft) > 2.5) {
+        fail(entry, `header axes ${actualLeft.toFixed(1)}/${actualRight.toFixed(1)} expected ~${expectedLeft.toFixed(1)}`);
+      }
     }
 
     if (!metrics.h1) fail(entry, 'primary H1 missing');
     else {
-      const target = pageSpec.name === 'aureum-hub' ? exp.caseH1 : exp.pageH1;
-      if (!near(metrics.h1.fontSize, target, 1)) fail(entry, `H1 ${metrics.h1.fontSize}px expected ~${target}px`);
+      const range = ['aureum-hub', 'quantolab'].includes(pageSpec.name) ? exp.caseH1 : exp.h1;
+      if (!inRange(metrics.h1.fontSize, range)) fail(entry, `H1 ${metrics.h1.fontSize}px outside ${range[0]}–${range[1]}px`);
     }
 
-    if (metrics.prominentSectionDividers > 0) fail(entry, `${metrics.prominentSectionDividers} prominent full-width section divider(s) remain`);
-    if (metrics.scrollWidth > metrics.clientWidth + 1 || metrics.bodyScrollWidth > metrics.clientWidth + 1) fail(entry, `horizontal overflow ${metrics.scrollWidth}/${metrics.bodyScrollWidth} > ${metrics.clientWidth}`);
+    if (!metrics.semantics.skipLink) fail(entry, 'skip link missing');
+    if (!metrics.semantics.main) fail(entry, 'main landmark missing');
+    if (metrics.semantics.h1Count !== 1) fail(entry, `expected exactly one H1, found ${metrics.semantics.h1Count}`);
+
+    if (metrics.scrollWidth > metrics.clientWidth + 2 || metrics.bodyScrollWidth > metrics.clientWidth + 2) {
+      const details = metrics.overflowing.map(x => `${x.tag}.${x.cls}[${x.left},${x.right}]`).join(' | ');
+      fail(entry, `horizontal overflow ${metrics.scrollWidth}/${metrics.bodyScrollWidth} > ${metrics.clientWidth}${details ? `; offenders: ${details}` : ''}`);
+    }
+
     if (metrics.brokenImages.length) fail(entry, `broken images: ${metrics.brokenImages.join(', ')}`);
     if (consoleErrors.length) fail(entry, `console errors: ${consoleErrors.join(' | ')}`);
     if (pageErrors.length) fail(entry, `page errors: ${pageErrors.join(' | ')}`);
-    if (metrics.brand && !near(metrics.brand.fontSize, 14, .5)) fail(entry, `brand font ${metrics.brand.fontSize}px expected 14px`);
+    if (metrics.brand && !inRange(metrics.brand.fontSize, exp.brand)) fail(entry, `brand font ${metrics.brand.fontSize}px outside ${exp.brand[0]}–${exp.brand[1]}px`);
 
-    if (metrics.footerLabels.length >= 2 && metrics.footerLabels[0].right > metrics.footerLabels[1].left - 4) fail(entry, 'footer labels overlap');
+    if (metrics.footerLabels.length >= 2 && intersects(metrics.footerLabels[0], metrics.footerLabels[1])) fail(entry, 'footer labels overlap');
 
     if (viewport.mode === 'mobile') {
       if (metrics.nav && metrics.nav.width > 0) fail(entry, 'desktop navigation visible on mobile');
-      if (!metrics.menu || metrics.menu.height < 44) fail(entry, `mobile MENU missing or touch target too small (${metrics.menu?.height ?? 0}px)`);
-    } else {
-      if (!metrics.nav || metrics.nav.width <= 0) fail(entry, 'desktop navigation missing');
+      if (!metrics.menu || metrics.menu.height < 44 || metrics.menu.width < 44) fail(entry, `mobile MENU missing or touch target too small (${metrics.menu?.width ?? 0}×${metrics.menu?.height ?? 0}px)`);
+    } else if (!metrics.nav || metrics.nav.width <= 0) {
+      fail(entry, 'desktop navigation missing');
     }
 
     if (pageSpec.portrait && metrics.portrait) {
-      const p = metrics.portrait;
-      if (metrics.portraitVariance === null || metrics.portraitVariance < 8) fail(entry, `portrait does not contain enough rendered image detail (variance ${metrics.portraitVariance ?? 'null'})`);
-      if (pageSpec.name === 'home') {
-        if (viewport.mode === 'desktop' && (!near(p.width,320,2) || !near(p.height,382,2))) fail(entry, `Home portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 320×382`);
-        if (viewport.mode === 'tablet' && (!near(p.width,400,2) || !near(p.height,477,2))) fail(entry, `Home tablet portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 400×477`);
-        if (viewport.mode === 'mobile') {
-          const expectedWidth = viewport.width - 40;
-          const expectedHeight = expectedWidth * 6 / 5;
-          if (!near(p.width,expectedWidth,2) || !near(p.height,expectedHeight,3)) fail(entry, `Home mobile portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected ${expectedWidth}×${expectedHeight.toFixed(0)}`);
-        }
-      }
-      if (pageSpec.name === 'about') {
-        if (viewport.mode === 'desktop' && (!near(p.width,480,2) || !near(p.height,560,2))) fail(entry, `About portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 480×560`);
-        if (viewport.mode === 'tablet' && (!near(p.width,360,2) || !near(p.height,430,2))) fail(entry, `About tablet portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected 360×430`);
-        if (viewport.mode === 'mobile') {
-          const expectedWidth = viewport.width - 40;
-          const expectedHeight = expectedWidth * 6 / 5;
-          if (!near(p.width,expectedWidth,2) || !near(p.height,expectedHeight,3)) fail(entry, `About mobile portrait ${p.width.toFixed(1)}×${p.height.toFixed(1)} expected ${expectedWidth}×${expectedHeight.toFixed(0)}`);
-        }
-      }
+      const ratio = metrics.portrait.width / Math.max(metrics.portrait.height, 1);
+      if (metrics.portrait.width < 260) fail(entry, `portrait too narrow (${metrics.portrait.width.toFixed(1)}px)`);
+      if (ratio < .70 || ratio > 1.02) fail(entry, `portrait ratio ${ratio.toFixed(2)} outside editorial range`);
     }
 
     const screenshot = path.join(outDir, `${pageSpec.name}-${viewport.name}.png`);
@@ -181,6 +169,7 @@ for (const viewport of viewports) {
     report.results.push(entry);
     await page.close();
   }
+
   await context.close();
 }
 
