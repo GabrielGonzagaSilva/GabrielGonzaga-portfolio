@@ -1,6 +1,13 @@
 name: Portfolio Visual QA
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.html'
+      - 'assets/**'
+      - 'qa/**'
+      - '.github/workflows/portfolio-qa.yml'
   push:
     branches: [main]
     paths:
